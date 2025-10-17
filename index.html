@@ -1,0 +1,224 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dashboard Penjualan - Toko Sederhana</title>
+  <style>
+    :root {
+      --bg-dark: #0f172a;
+      --bg-card: #1e293b;
+      --text-light: #f8fafc;
+      --accent: #38bdf8;
+      --muted: #94a3b8;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg-dark);
+      color: var(--text-light);
+      display: flex;
+      height: 100vh;
+    }
+    /* Sidebar */
+    .sidebar {
+      width: 230px;
+      background: #1e293b;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+    }
+    .sidebar h2 {
+      font-size: 20px;
+      color: var(--accent);
+      margin-bottom: 24px;
+    }
+    .nav a {
+      display: block;
+      color: var(--muted);
+      padding: 10px 0;
+      text-decoration: none;
+      transition: 0.2s;
+    }
+    .nav a:hover, .nav a.active {
+      color: var(--text-light);
+    }
+    /* Main */
+    .main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      background: #111827;
+      overflow-y: auto;
+    }
+    header {
+      padding: 16px 24px;
+      border-bottom: 1px solid #1f2937;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    header h1 { font-size: 22px; }
+    input[type=text] {
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 8px;
+      padding: 8px 10px;
+      color: var(--text-light);
+    }
+    /* Cards */
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      padding: 20px 24px;
+    }
+    .card {
+      background: var(--bg-card);
+      border-radius: 12px;
+      padding: 16px;
+      text-align: center;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    }
+    .card h3 { margin: 8px 0 4px; font-size: 18px; }
+    .card p { color: var(--muted); font-size: 14px; margin: 0; }
+    .value { font-size: 26px; font-weight: 700; color: var(--accent); }
+    /* Table */
+    .table-container {
+      padding: 0 24px 40px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+      background: var(--bg-card);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    th, td {
+      padding: 12px 16px;
+      text-align: left;
+    }
+    th {
+      background: #334155;
+      color: var(--text-light);
+      font-weight: 600;
+    }
+    tr:nth-child(even) { background: #1e293b; }
+    tr:hover { background: #2a364a; }
+    td { color: var(--muted); }
+    footer {
+      text-align: center;
+      padding: 16px;
+      font-size: 13px;
+      color: var(--muted);
+      border-top: 1px solid #1f2937;
+    }
+    @media (max-width: 700px) {
+      .sidebar { display: none; }
+      .main { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <aside class="sidebar">
+    <h2>Toko Outfit</h2>
+    <nav class="nav">
+      <a href="#" class="active">📊 Dashboard</a>
+      <a href="#">🛍️ Produk</a>
+      <a href="#">💰 Penjualan</a>
+      <a href="#">📞 Kontak</a>
+    </nav>
+  </aside>
+
+  <div class="main">
+    <header>
+      <h1>Dashboard Penjualan</h1>
+      <input type="text" id="search" placeholder="Cari produk..." oninput="renderTable()">
+    </header>
+
+    <section class="cards">
+      <div class="card">
+        <div class="value" id="totalProduk">0</div>
+        <h3>Total Produk</h3>
+        <p>Jumlah item yang tersedia</p>
+      </div>
+      <div class="card">
+        <div class="value" id="totalTerjual">0</div>
+        <h3>Produk Terjual</h3>
+        <p>Data penjualan minggu ini</p>
+      </div>
+      <div class="card">
+        <div class="value" id="pengunjung">0</div>
+        <h3>Pengunjung</h3>
+        <p>Jumlah pengunjung hari ini</p>
+      </div>
+      <div class="card">
+        <div class="value" id="pendapatan">Rp 0</div>
+        <h3>Pendapatan</h3>
+        <p>Total pemasukan</p>
+      </div>
+    </section>
+
+    <section class="table-container">
+      <h2>Daftar Produk</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Nama Produk</th>
+            <th>Deskripsi</th>
+            <th>Harga</th>
+            <th>Stok</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+    </section>
+
+    <footer>© 2025 Toko Outfit — Dashboard Penjualan Gelap</footer>
+  </div>
+
+  <script>
+    const dataProduk = [
+      { nama: 'Kaos Polos', deskripsi: 'Kaos katun premium', harga: 75000, stok: 32, terjual: 12 },
+      { nama: 'Celana Jeans', deskripsi: 'Jeans regular fit', harga: 150000, stok: 20, terjual: 8 },
+      { nama: 'Tas Ransel', deskripsi: 'Ransel laptop 15 inch', harga: 125000, stok: 15, terjual: 10 },
+      { nama: 'Sepatu Sneakers', deskripsi: 'Sneakers kasual', harga: 220000, stok: 10, terjual: 6 },
+    ];
+
+    function formatRupiah(num) {
+      return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+    }
+
+    function renderTable() {
+      const keyword = document.getElementById('search').value.toLowerCase();
+      const tbody = document.getElementById('tableBody');
+      tbody.innerHTML = '';
+      const filtered = dataProduk.filter(p => p.nama.toLowerCase().includes(keyword));
+
+      filtered.forEach(p => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td>${p.nama}</td><td>${p.deskripsi}</td><td>Rp ${formatRupiah(p.harga)}</td><td>${p.stok}</td>`;
+        tbody.appendChild(tr);
+      });
+
+      updateStats();
+    }
+
+    function updateStats() {
+      const totalProduk = dataProduk.length;
+      const totalTerjual = dataProduk.reduce((s,p)=>s+p.terjual,0);
+      const totalPendapatan = dataProduk.reduce((s,p)=>s+p.harga*p.terjual,0);
+      const pengunjung = Math.floor(Math.random()*100+50);
+
+      document.getElementById('totalProduk').textContent = totalProduk;
+      document.getElementById('totalTerjual').textContent = totalTerjual;
+      document.getElementById('pendapatan').textContent = 'Rp ' + formatRupiah(totalPendapatan);
+      document.getElementById('pengunjung').textContent = pengunjung;
+    }
+
+    renderTable();
+  </script>
+</body>
+</html>
